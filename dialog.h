@@ -40,7 +40,7 @@ private:
 
     QSerialPort serialPort;
     QByteArray rawData;
-    float value;
+    float value,lastValue;
     QString unit;
     QTcpServer tcpServer;
     QTcpSocket *tcpSocket;

@@ -18,6 +18,8 @@ Dialog::Dialog(QWidget *parent)
     ui->pushButtonCloseDLT->setDisabled(true);
     ui->pushButtonDisconnect->setDisabled(true);
 
+    value = 0;
+    lastValue = 0;
 }
 
 Dialog::~Dialog()
@@ -95,8 +97,11 @@ void Dialog::readData()
                 calculateValue();
                 ui->lineEditValue->setText(QString::number(value));
                 ui->lineEditUnit->setText(unit);
-                if(tcpSocket && tcpSocket->isOpen())
+                if(tcpSocket && tcpSocket->isOpen() && lastValue!=value)
+                {
                     sendValue2(QString::number(value), unit);
+                    lastValue = value;
+                }
                 break;
             default:
                 rawData+=data[num];
