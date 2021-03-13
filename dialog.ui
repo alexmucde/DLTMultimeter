@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>298</width>
-    <height>606</height>
+    <height>634</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -185,7 +185,13 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditUnit"/>
+       <widget class="QLineEdit" name="lineEditUnit">
+        <property name="font">
+         <font>
+          <pointsize>22</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
@@ -195,7 +201,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditValue"/>
+       <widget class="QLineEdit" name="lineEditValue">
+        <property name="font">
+         <font>
+          <pointsize>22</pointsize>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLCDNumber" name="lcdNumber">
+        <property name="font">
+         <font>
+          <pointsize>22</pointsize>
+         </font>
+        </property>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Filled</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
