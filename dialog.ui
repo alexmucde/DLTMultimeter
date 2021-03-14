@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
-    <height>634</height>
+    <width>536</width>
+    <height>314</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,111 +26,97 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
-      <string>Settings Multimeter</string>
+      <string>Settings</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QPushButton" name="pushButtonSettings">
         <property name="text">
-         <string>Serial Port:</string>
+         <string>Settings...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxSerialPort">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonUpdate">
+       <widget class="QPushButton" name="pushButtonDefaultSettings">
         <property name="text">
-         <string>Update</string>
+         <string>Default</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonConnect">
+       <widget class="QPushButton" name="pushButtonLoadSettings">
         <property name="text">
-         <string>Open</string>
+         <string>Load...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonDisconnect">
+       <widget class="QPushButton" name="pushButtonSaveSettings">
         <property name="text">
-         <string>Close</string>
+         <string>Save...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QPushButton" name="pushButtonInfo">
         <property name="text">
-         <string>Status:</string>
+         <string>Info...</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditStatus">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="4" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Multimeter Data</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Value:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLineEdit" name="lineEditValue">
+        <property name="font">
+         <font>
+          <pointsize>22</pointsize>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditUnit">
+        <property name="font">
+         <font>
+          <pointsize>22</pointsize>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Unit:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="1">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Settings DLT</string>
+      <string>DLT</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Server TCP Port:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditPortDLT">
-        <property name="text">
-         <string>3491</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonOpenDLT">
-        <property name="text">
-         <string>Open</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonCloseDLT">
-        <property name="text">
-         <string>Close</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QLabel" name="label_7">
         <property name="text">
@@ -145,83 +131,44 @@
         </property>
        </widget>
       </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Multimeter</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Status:</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditStatusMultimeter">
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
-       </spacer>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>Multimeter Data</string>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButtonStop">
+     <property name="text">
+      <string>Stop</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Raw Data:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="textEditRawData"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Unit:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditUnit">
-        <property name="font">
-         <font>
-          <pointsize>22</pointsize>
-         </font>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Value:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEditValue">
-        <property name="font">
-         <font>
-          <pointsize>22</pointsize>
-         </font>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLCDNumber" name="lcdNumber">
-        <property name="font">
-         <font>
-          <pointsize>22</pointsize>
-         </font>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Filled</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="pushButtonStart">
+     <property name="text">
+      <string>Start</string>
+     </property>
     </widget>
    </item>
   </layout>

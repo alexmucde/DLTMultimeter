@@ -1,25 +1,67 @@
+/**
+ * @licence app begin@
+ * Copyright (C) 2021 Alexander Wenzel
+ *
+ * This file is part of the DLT Multimeter project.
+ *
+ * \copyright This code is licensed under GPLv3.
+ *
+ * \author Alexander Wenzel <alex@eli2.de>
+ *
+ * \file dialog.cpp
+ * @licence end@
+ */
+
 #include <QSerialPortInfo>
+#include <QFileDialog>
+#include <QFile>
+#include <QMessageBox>
+#include <QSettings>
 
 #include "dialog.h"
 #include "ui_dialog.h"
+#include "settingsdialog.h"
+#include "version.h"
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::Dialog)
+    , dltMiniServer(this)
+    , dltMultimeter(this)
 {
     ui->setupUi(this);
 
-    on_pushButtonUpdate_clicked();
+    on_pushButtonDefaultSettings_clicked();
 
-    tcpSocket = 0;
+    setWindowTitle(QString("DLTMultimeter %1").arg(DLT_MULTIMETER_VERSION));
 
-    setWindowTitle("DLTMultimeter");
+    ui->pushButtonStop->setDisabled(true);
 
-    ui->pushButtonCloseDLT->setDisabled(true);
-    ui->pushButtonDisconnect->setDisabled(true);
+    connect(&dltMultimeter, SIGNAL(status(QString)), this, SLOT(statusMultimeter(QString)));
+    connect(&dltMiniServer, SIGNAL(status(QString)), this, SLOT(statusDlt(QString)));
 
-    value = 0;
-    lastValue = 0;
+    connect(&dltMultimeter, SIGNAL(valueMultimeter(QString,QString)), this, SLOT(valueMultimeter(QString,QString)));
+
+    /*  load global settings */
+    QSettings settings;
+    QString filename = settings.value("autoload/filename").toString();
+    bool autoload = settings.value("autoload/checked").toBool();
+    bool autostart = settings.value("autostart/checked").toBool();
+
+    /* autoload settings */
+    if(autoload)
+    {
+        dltMultimeter.readSettings(filename);
+        dltMiniServer.readSettings(filename);
+        restoreSettings();
+    }
+
+    /* autostart */
+    if(autostart)
+    {
+        on_pushButtonStart_clicked();
+    }
+
 }
 
 Dialog::~Dialog()
@@ -27,294 +69,146 @@ Dialog::~Dialog()
     delete ui;
 }
 
-
-void Dialog::on_pushButtonUpdate_clicked()
+void Dialog::restoreSettings()
 {
-    QList<QSerialPortInfo> 	availablePorts  = QSerialPortInfo::availablePorts();
-
-    ui->comboBoxSerialPort->clear();
-
-    for(int num = 0; num<availablePorts.length();num++)
-    {
-        ui->comboBoxSerialPort->addItem(availablePorts[num].portName());
-    }
 }
 
-void Dialog::on_pushButtonConnect_clicked()
+void Dialog::updateSettings()
 {
-    if(serialPort.isOpen())
-        return;
-
-    serialPort.setBaudRate(QSerialPort::Baud2400);
-    serialPort.setDataBits(QSerialPort::Data8);
-    serialPort.setParity(QSerialPort::NoParity);
-    serialPort.setStopBits(QSerialPort::OneStop);
-    serialPort.setPortName(ui->comboBoxSerialPort->lineEdit()->text());
-
-    if(serialPort.open(QIODevice::ReadOnly)==true)
-    {
-        ui->pushButtonConnect->setDisabled(true);
-        ui->pushButtonDisconnect->setDisabled(false);
-        ui->lineEditStatus->setText("Connected");
-        connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readData()));
-    }
-    else
-    {
-        ui->lineEditStatus->setText("Connection failed");
-    }
-
 }
 
-void Dialog::on_pushButtonDisconnect_clicked()
+void Dialog::on_pushButtonStart_clicked()
 {
-    if(!serialPort.isOpen())
-        return;
+    updateSettings();
 
-    serialPort.close();
-    disconnect(&serialPort, SIGNAL(readyRead()), this, SLOT(readData()));
-    ui->pushButtonConnect->setDisabled(false);
-    ui->pushButtonDisconnect->setDisabled(true);
-    ui->lineEditStatus->setText("");
+    dltMultimeter.start();
+    dltMiniServer.start();
 
+    ui->pushButtonStart->setDisabled(true);
+    ui->pushButtonStop->setDisabled(false);
+    ui->pushButtonDefaultSettings->setDisabled(true);
+    ui->pushButtonLoadSettings->setDisabled(true);
+    ui->pushButtonSettings->setDisabled(true);
 }
 
-void Dialog::readData()
+void Dialog::on_pushButtonStop_clicked()
 {
-    QByteArray data = serialPort.readAll();
+    dltMultimeter.stop();
+    dltMiniServer.stop();
 
-    for(int num=0;num<data.length();num++)
-    {
-        switch(data[num]&0xf0)
-        {
-            case 0x10:
-                rawData.clear();
-                rawData+=data[num];
-                break;
-            case 0xe0:
-                data.clear();
-                rawData+=data[num];
-                ui->textEditRawData->setText(rawData.toHex());
-                calculateValue();
-                ui->lineEditValue->setText(QString::number(value));
-                ui->lineEditUnit->setText(unit);
-                if(tcpSocket && tcpSocket->isOpen() && lastValue!=value)
-                {
-                    sendValue2(QString::number(value), unit);
-                    lastValue = value;
-                }
-                break;
-            default:
-                rawData+=data[num];
-                break;
-        }
-    }
+    ui->pushButtonStart->setDisabled(false);
+    ui->pushButtonStop->setDisabled(true);
+    ui->pushButtonDefaultSettings->setDisabled(false);
+    ui->pushButtonLoadSettings->setDisabled(false);
+    ui->pushButtonSettings->setDisabled(false);
 }
 
-void Dialog::calculateValue()
+void Dialog::statusMultimeter(QString text)
 {
-    if(rawData.length()!=14)
-        return;
-
-    value=calculateNumber(rawData[1]&0x7,rawData[2]&0xf);
-    value=value*10+calculateNumber(rawData[3]&0x7,rawData[4]&0xf);
-    value=value*10+calculateNumber(rawData[5]&0x7,rawData[6]&0xf);
-    value=value*10+calculateNumber(rawData[7]&0x7,rawData[8]&0xf);
-
-    if(rawData[1]&0x08) value*=-1;
-
-    if(rawData[3]&0x08) value/=1000;
-    if(rawData[5]&0x08) value/=100;
-    if(rawData[7]&0x08) value/=10;
-
-    if(rawData[10]&0x08) value/=1000; // milli
-    if(rawData[9]&0x08) value/=1000; // mycro
-
-    if(rawData[12]&0x08)
-        unit = "A";
-    else if(rawData[12]&0x04)
-        unit = "V";
-    else
-        unit = "unknown";
+    ui->lineEditStatusMultimeter->setText(text);
 }
 
-int Dialog::calculateNumber(unsigned char a,unsigned char b)
+void Dialog::statusDlt(QString text)
 {
-    if(a==0x7 && b==0x0d)
-        return 0;
-    else if(a==0x0 && b==0x05)
-        return 1;
-    else if(a==0x5 && b==0x0b)
-        return 2;
-    else if(a==0x1 && b==0x0f)
-        return 3;
-    else if(a==0x2 && b==0x07)
-        return 4;
-    else if(a==0x3 && b==0x0e)
-        return 5;
-    else if(a==0x7 && b==0x0e)
-        return 6;
-    else if(a==0x1 && b==0x05)
-        return 7;
-    else if(a==0x7 && b==0x0f)
-        return 8;
-    else if(a==0x3 && b==0x0f)
-        return 9;
-
+    ui->lineEditStatusDLT->setText(text);
 }
 
-void Dialog::on_pushButtonOpenDLT_clicked()
+void Dialog::on_pushButtonSettings_clicked()
 {
-    if(tcpServer.isListening())
-        return;
+    SettingsDialog dlg(this);
 
-    tcpServer.setMaxPendingConnections(1);
-    tcpServer.listen(QHostAddress::Any,ui->lineEditPortDLT->text().toUInt());
-    connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    dlg.restoreSettings(&dltMultimeter, &dltMiniServer);
 
-    ui->pushButtonOpenDLT->setDisabled(true);
-    ui->pushButtonCloseDLT->setDisabled(false);
-    ui->lineEditStatusDLT->setText("Listening");
+    dlg.exec();
+
+    dlg.backupSettings(&dltMultimeter, &dltMiniServer);
+
+    restoreSettings();
 }
 
-void Dialog::on_pushButtonCloseDLT_clicked()
+void Dialog::on_pushButtonDefaultSettings_clicked()
 {
-    if(tcpSocket && tcpSocket->isOpen())
-    {
-        disconnect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
-        disconnect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-        tcpSocket->close();
-    }
+    dltMultimeter.clearSettings();
+    dltMiniServer.clearSettings();
 
-    disconnect(&tcpServer, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    tcpServer.close();
-
-    ui->pushButtonOpenDLT->setDisabled(false);
-    ui->pushButtonCloseDLT->setDisabled(true);
-    ui->lineEditStatusDLT->setText("");
+    restoreSettings();
 }
 
-void Dialog::newConnection()
+void Dialog::on_pushButtonLoadSettings_clicked()
 {
-    tcpSocket = tcpServer.nextPendingConnection();
-    connect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    ui->lineEditStatusDLT->setText("Connected");
-    tcpServer.pauseAccepting();
-}
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open Settings"), "", tr("DLTMultimeter Settings (*.xml);;All files (*.*)"));
 
-void Dialog::connected()
-{
-    ui->lineEditStatusDLT->setText("Connected2");
-
-}
-
-void Dialog::disconnected()
-{
-    ui->lineEditStatusDLT->setText("Listening");
-    tcpSocket->close();
-    disconnect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
-    disconnect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    //delete tcpSocket;
-    tcpSocket = 0;
-    tcpServer.resumeAccepting();
-}
-
-void Dialog::sendValue(QString text)
-{
-    if(!tcpSocket->isOpen())
+    if(fileName.isEmpty())
     {
         return;
     }
 
-    QByteArray data;
+    dltMultimeter.readSettings(fileName);
+    dltMiniServer.readSettings(fileName);
 
-    // Standard Header (4 Byte)
-    data += 0x21; // htyp: Use extended header, version 0x1
-    data += (char)0x00; // message counter
-    data += (char)0x00; // length high byte
-    data += (char)4+10+4+2+text.length(); // length low byte
-
-    // Extended Header (10 Byte)
-    data += (char)0x41; // MSIN: Verbose,NW_TRACE, CAN 0x25
-    data += (char)0x01; // NOAR
-    data += (char)'M'; // APID
-    data += (char)'U'; // APID
-    data += (char)'L'; // APID
-    data += (char)0; // APID
-    data += (char)'V'; // CTID
-    data += (char)'A'; // CTID
-    data += (char)'L'; // CTID
-    data += (char)0; // CTID
-
-    // Payload Type Info (4 Byte)
-    data += (char)0x00;
-    data += (char)0x02; // String
-    data += (char)0x00;
-    data += (char)0x00;
-
-    // Payload Type Data Length
-    data += ((char)text.length()); // length low byte
-    data += ((char)0x00); // length high byte
-
-    // Payload Type Data
-    data += text.toUtf8();
-
-    tcpSocket->write(data);
+    restoreSettings();
 }
 
-void Dialog::sendValue2(QString text1,QString text2)
+void Dialog::on_pushButtonSaveSettings_clicked()
 {
-    if(!tcpSocket->isOpen())
+    updateSettings();
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Settings"), "", tr("DLTMultimeter Settings (*.xml);;All files (*.*)"));
+
+    if(fileName.isEmpty())
     {
         return;
     }
 
-    QByteArray data;
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+             return;
 
-    // Standard Header (4 Byte)
-    data += 0x21; // htyp: Use extended header, version 0x1
-    data += (char)0x00; // message counter
-    data += (char)0x00; // length high byte
-    data += (char)4+10+4+2+text1.length()+4+2+text2.length(); // length low byte
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    //xml.writeStartDocument();
 
-    // Extended Header (10 Byte)
-    data += (char)0x41; // MSIN: Verbose,NW_TRACE, CAN 0x25
-    data += (char)0x02; // NOAR
-    data += (char)'M'; // APID
-    data += (char)'U'; // APID
-    data += (char)'L'; // APID
-    data += (char)0; // APID
-    data += (char)'V'; // CTID
-    data += (char)'A'; // CTID
-    data += (char)'L'; // CTID
-    data += (char)0; // CTID
+    xml.writeStartElement("DLTMultimeterSettings");
+        dltMultimeter.writeSettings(xml);
+        dltMiniServer.writeSettings(xml);
+    xml.writeEndElement(); // DLTMultimeterSettings
 
-    // Payload Type Info (4 Byte)
-    data += (char)0x00;
-    data += (char)0x02; // String
-    data += (char)0x00;
-    data += (char)0x00;
-
-    // Payload Type Data Length
-    data += ((char)text1.length()); // length low byte
-    data += ((char)0x00); // length high byte
-
-    // Payload Type Data
-    data += text1.toUtf8();
-
-    // Payload Type Info (4 Byte)
-    data += (char)0x00;
-    data += (char)0x02; // String
-    data += (char)0x00;
-    data += (char)0x00;
-
-    // Payload Type Data Length
-    data += ((char)text2.length()); // length low byte
-    data += ((char)0x00); // length high byte
-
-    // Payload Type Data
-    data += text2.toUtf8();
-
-    tcpSocket->write(data);
-
+    //xml.writeEndDocument();
+    file.close();
 }
+
+void Dialog::on_pushButtonInfo_clicked()
+{
+    QMessageBox msgBox(this);
+
+    msgBox.setWindowTitle("Info DLTMultimeter");
+    msgBox.setTextFormat(Qt::RichText);
+
+    QString text;
+    text += QString("Version: %1<br>").arg(DLT_MULTIMETER_VERSION);
+    text += "<br>";
+    text += "Information and Documentation can be found here:<br>";
+    text += "<br>";
+    text += "<a href='https://github.com/alexmucde/DLTMultimeter'>Github DLTMultimeter</a><br>";
+    text += "<br>";
+    text += "This SW is licensed under GPLv3.<br>";
+    text += "<br>";
+    text += "(C) 2021 Alexander Wenzel <alex@eli2.de>";
+
+    msgBox.setText(text);
+
+    msgBox.setStandardButtons(QMessageBox::Ok);
+
+    msgBox.exec();
+}
+
+void Dialog::valueMultimeter(QString value,QString unit)
+{
+    ui->lineEditUnit->setText(unit);
+    ui->lineEditValue->setText(value);
+
+    dltMiniServer.sendValue2(value,unit);
+}
+

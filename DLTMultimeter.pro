@@ -9,14 +9,22 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dltlultimeter.cpp \
+    dltminiserver.cpp \
     main.cpp \
-    dialog.cpp
+    dialog.cpp \
+    settingsdialog.cpp
 
 HEADERS += \
-    dialog.h
+    dialog.h \
+    dltminiserver.h \
+    dltmultimeter.h \
+    settingsdialog.h \
+    version.h
 
 FORMS += \
-    dialog.ui
+    dialog.ui \
+    settingsdialog.ui
 
 TRANSLATIONS += \
     DLTMultimeter_en_DE.ts
@@ -25,3 +33,8 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    .gitignore \
+    LICENSE \
+    README.md

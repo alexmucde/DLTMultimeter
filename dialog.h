@@ -1,3 +1,17 @@
+/**
+ * @licence app begin@
+ * Copyright (C) 2021 Alexander Wenzel
+ *
+ * This file is part of the DLT Multimeter project.
+ *
+ * \copyright This code is licensed under GPLv3.
+ *
+ * \author Alexander Wenzel <alex@eli2.de>
+ *
+ * \file dialog.h
+ * @licence end@
+ */
+
 #ifndef DIALOG_H
 #define DIALOG_H
 
@@ -5,6 +19,9 @@
 #include <QSerialPort>
 #include <QTcpServer>
 #include <QTcpSocket>
+
+#include "dltminiserver.h"
+#include "dltmultimeter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
@@ -19,35 +36,29 @@ public:
     ~Dialog();
 
 private slots:
-    void on_pushButtonUpdate_clicked();
 
-    void on_pushButtonConnect_clicked();
+    void on_pushButtonStart_clicked();
+    void on_pushButtonStop_clicked();
 
-    void on_pushButtonDisconnect_clicked();
+    void statusMultimeter(QString text);
+    void statusDlt(QString text);
 
-    void readData();
+    void valueMultimeter(QString value,QString unit);
 
-    void on_pushButtonOpenDLT_clicked();
-
-    void on_pushButtonCloseDLT_clicked();
-
-    void newConnection();
-    void connected();
-    void disconnected();
+    void on_pushButtonDefaultSettings_clicked();
+    void on_pushButtonLoadSettings_clicked();
+    void on_pushButtonSaveSettings_clicked();
+    void on_pushButtonInfo_clicked();
+    void on_pushButtonSettings_clicked();
 
 private:
     Ui::Dialog *ui;
 
-    QSerialPort serialPort;
-    QByteArray rawData;
-    float value,lastValue;
-    QString unit;
-    QTcpServer tcpServer;
-    QTcpSocket *tcpSocket;
+    void restoreSettings();
+    void updateSettings();
 
-    void calculateValue();
-    int calculateNumber(unsigned char a,unsigned char b);
-    void sendValue(QString text);
-    void sendValue2(QString text1,QString text2);
+    DLTMiniServer dltMiniServer;
+    DLTMultimeter dltMultimeter;
+
 };
 #endif // DIALOG_H
