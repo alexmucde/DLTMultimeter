@@ -71,3 +71,5 @@ Thumbs.db
 *.dll
 *.exe
 
+*.stash
+build-DLTMultimeter-Desktop_Qt_5_12_10_MSVC2015_64bit-Release/release/moc_predefs.h

@@ -106,11 +106,55 @@ void Dialog::on_pushButtonStop_clicked()
 void Dialog::statusMultimeter(QString text)
 {
     ui->lineEditStatusMultimeter->setText(text);
+
+    if(text == "" || text == "stopped")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::white);
+        ui->lineEditStatusMultimeter->setPalette(palette);
+    }
+    if(text == "started")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::green);
+        ui->lineEditStatusMultimeter->setPalette(palette);
+    }
+    if(text == "error")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::red);
+        ui->lineEditStatusMultimeter->setPalette(palette);
+    }
 }
 
 void Dialog::statusDlt(QString text)
 {
     ui->lineEditStatusDLT->setText(text);
+
+    if(text == "" || text == "stopped")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::white);
+        ui->lineEditStatusDLT->setPalette(palette);
+    }
+    if(text == "listening")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::yellow);
+        ui->lineEditStatusDLT->setPalette(palette);
+    }
+    if(text == "connected")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::green);
+        ui->lineEditStatusDLT->setPalette(palette);
+    }
+    if(text == "error")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::red);
+        ui->lineEditStatusDLT->setPalette(palette);
+    }
 }
 
 void Dialog::on_pushButtonSettings_clicked()
