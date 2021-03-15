@@ -119,11 +119,11 @@ void Dialog::on_pushButtonSettings_clicked()
 
     dlg.restoreSettings(&dltMultimeter, &dltMiniServer);
 
-    dlg.exec();
-
-    dlg.backupSettings(&dltMultimeter, &dltMiniServer);
-
-    restoreSettings();
+    if(dlg.exec()==QDialog::Accepted)
+    {
+        dlg.backupSettings(&dltMultimeter, &dltMiniServer);
+        restoreSettings();
+    }
 }
 
 void Dialog::on_pushButtonDefaultSettings_clicked()

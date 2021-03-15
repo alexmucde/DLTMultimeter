@@ -28,7 +28,7 @@ DLTMultimeter.exe
 
 Contibutions are always welcome! Please provide a Pull Request on Github.
 
-https://github.com/alexmucde/DLTMultimeter
+https://github.com/alexmucde/DLTMultimeter/pulls
 
 ## Donation
 
