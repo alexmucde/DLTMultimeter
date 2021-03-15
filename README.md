@@ -1,8 +1,6 @@
 # DLTMultimeter
 
-DLTMultimeter is a Tool to read the measured Voltage or Current from a Multimeter.
-The Multimeter is connected by a USB(Serial) interface.
-It provides an interface to DLT for Logging of the measured values.
+DLTMultimeter is a Tool to read the measured Voltage or Current from a Multimeter and write the values to connected DLT Data Logger.
 
 ![Image of DLTMultimeter](https://github.com/alexmucde/DLTMultimeter/blob/main/doc/images/DLTMultimeter.jpg)
 
@@ -15,6 +13,11 @@ https://github.com/GENIVI/dlt-viewer
 The following Multimeter is currently supported and tested:
 
 * HoldPeak HP-90EPC [Amazon Germany](https://amzn.to/3bIsPwT) [AliExpress](https://best.aliexpress.com)
+  Interface: USB
+  Protocol: https://sigrok.org/wiki/Multimeter_ICs#Fortune_Semiconductor_FS9721_LP3
+  USB Driver: https://www.holdpeak.de/download/
+
+To support further Hardware please provide me a protocol specification and a sample for testing.
 
 ## Installation
 
