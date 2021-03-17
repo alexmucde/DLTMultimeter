@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>536</width>
-    <height>314</height>
+    <width>570</width>
+    <height>307</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,6 +15,11 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -87,6 +92,7 @@
        <widget class="QLineEdit" name="lineEditValue">
         <property name="font">
          <font>
+          <family>Arial</family>
           <pointsize>22</pointsize>
          </font>
         </property>
@@ -96,6 +102,7 @@
        <widget class="QLineEdit" name="lineEditUnit">
         <property name="font">
          <font>
+          <family>Arial</family>
           <pointsize>22</pointsize>
          </font>
         </property>
