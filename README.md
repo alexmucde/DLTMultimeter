@@ -12,7 +12,7 @@ https://github.com/GENIVI/dlt-viewer
 
 The following Multimeter is currently supported and tested:
 
-* HoldPeak HP-90EPC [Amazon Germany](https://amzn.to/3bIsPwT) [AliExpress](https://best.aliexpress.com)
+* HoldPeak HP-90EPC [Amazon Germany](https://amzn.to/3bIsPwT) [AliExpress](https://s.click.aliexpress.com/e/_AM1Vsi)
   Interface: USB
   Protocol: https://sigrok.org/wiki/Multimeter_ICs#Fortune_Semiconductor_FS9721_LP3
   USB Driver: https://www.holdpeak.de/download/
