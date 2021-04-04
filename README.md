@@ -27,6 +27,14 @@ To build this SW the Qt Toolchain must be used.
 
 DLTMultimeter.exe
 
+* Options:
+*  -?, -h, --help          Help
+*  -v, --version           Version
+*  -a                      Autostart Communication
+
+* Arguments:
+*  configuration           Configuration file
+
 ## Contributing
 
 Contibutions are always welcome! Please provide a Pull Request on Github.
@@ -44,6 +52,13 @@ Paypal Donation:
 Github Sponsors:
 
 [:heart: Sponsor](https://github.com/sponsors/alexmucde)
+
+## Changes
+
+v0.0.3:
+
+* Added Watchdog
+* Added command line options autoload and configuration file
 
 ## Copyright
 
