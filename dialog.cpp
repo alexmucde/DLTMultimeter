@@ -34,6 +34,7 @@ Dialog::Dialog(QWidget *parent)
     on_pushButtonDefaultSettings_clicked();
 
     setWindowTitle(QString("DLTMultimeter %1").arg(DLT_MULTIMETER_VERSION));
+    setWindowFlags(windowFlags() | Qt::WindowMinimizeButtonHint);
 
     ui->pushButtonStop->setDisabled(true);
 
