@@ -32,43 +32,61 @@ DLTMultimeter::~DLTMultimeter()
 
 void DLTMultimeter::start()
 {
-    if(serialPort.isOpen())
-        return;
-
     value = 0;
     lastValue = -1;
 
+    // set serial port parameters
     serialPort.setBaudRate(QSerialPort::Baud2400);
     serialPort.setDataBits(QSerialPort::Data8);
     serialPort.setParity(QSerialPort::NoParity);
     serialPort.setStopBits(QSerialPort::OneStop);
     serialPort.setPortName(interface);
 
+    // open serial port
     if(serialPort.open(QIODevice::ReadWrite)==true)
     {
+        // open with success
+
+        // connect slot to receive data from serial port
         connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
-    }
+
+        status(QString("started"));
+        qDebug() << "DLTMultimeter: started" << interface;
+     }
     else
     {
+        // open failed
+
         qDebug() << "DLTMultimeter: Failed to open interface" << interface;
         status(QString("error"));
-        return;
     }
 
-    status(QString("started"));
-    qDebug() << "DLTMultimeter: started" << interface;
+    // connect slot watchdog timer and start watchdog timer
+    connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
+    timer.start(5000);
+    watchDogCounter = 0;
+    watchDogCounterLast = 0;
 }
 
 void DLTMultimeter::stop()
 {
-    if(!serialPort.isOpen())
-        return;
-
-    serialPort.close();
-    disconnect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
-
+    // stop communication
     status(QString("stopped"));
     qDebug() << "DLTMultimeter: stopped" << interface;
+
+    // close serial port, if it is open
+    if(serialPort.isOpen())
+    {
+        serialPort.close();
+
+        // disconnect slot to receive data from serial port
+        disconnect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    }
+
+    // stop watchdog timer
+    timer.stop();
+    disconnect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
+
 }
 
 void DLTMultimeter::readyRead()
@@ -93,6 +111,7 @@ void DLTMultimeter::readyRead()
                     valueMultimeter(QString("%1").arg(value),unit);
                     lastValue = value;
                 }
+                watchDogCounter++;
                 qDebug() << "DLTMultimeter: Value received" << interface << value << unit;
                 break;
             default:
@@ -100,6 +119,50 @@ void DLTMultimeter::readyRead()
                 break;
         }
     }
+}
+
+void DLTMultimeter::timeout()
+{
+    // watchdog timeout
+
+    // check if watchdog was triggered between last call
+    if(watchDogCounter!=watchDogCounterLast)
+    {
+        watchDogCounterLast = watchDogCounter;
+        status(QString("started"));
+    }
+    else
+    {
+        // no watchdog was received
+        qDebug() << "DLTMultimeter: Watchdog expired try to reconnect" ;
+
+        // if serial port is open close serial port
+        if(serialPort.isOpen())
+        {
+            serialPort.close();
+            disconnect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
+        }
+
+        // try to reopen serial port
+        if(serialPort.open(QIODevice::ReadWrite)==true)
+        {
+            // retry was succesful
+
+            // connect slot to receive data from serial port
+            connect(&serialPort, SIGNAL(readyRead()), this, SLOT(readyRead()));
+
+            status(QString("reconnect"));
+            qDebug() << "DLTMultimeter: reconnect" << interface;
+        }
+        else
+        {
+            // retry failed
+
+            qDebug() << "DLTMultimeter: Failed to open interface" << interface;
+            status(QString("error"));
+        }
+    }
+
 }
 
 void DLTMultimeter::clearSettings()

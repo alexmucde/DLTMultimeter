@@ -122,6 +122,12 @@ void Dialog::statusMultimeter(QString text)
         palette.setColor(QPalette::Base,Qt::white);
         ui->lineEditStatusMultimeter->setPalette(palette);
     }
+    if(text == "reconnect")
+    {
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::yellow);
+        ui->lineEditStatusMultimeter->setPalette(palette);
+    }
     if(text == "started")
     {
         QPalette palette;

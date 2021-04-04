@@ -19,6 +19,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QSerialPort>
+#include <QTimer>
 
 class DLTMultimeter : public QObject
 {
@@ -46,9 +47,14 @@ private slots:
 
     void readyRead();
 
+    // Watchdog Timeout
+    void timeout();
+
 private:
 
     QSerialPort serialPort;
+    QTimer timer;
+    unsigned int watchDogCounter,watchDogCounterLast;
 
     QString interface;
 
