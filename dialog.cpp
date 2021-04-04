@@ -23,7 +23,7 @@
 #include "settingsdialog.h"
 #include "version.h"
 
-Dialog::Dialog(QWidget *parent)
+Dialog::Dialog(bool autostart,QString configuration,QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::Dialog)
     , dltMiniServer(this)
@@ -43,13 +43,13 @@ Dialog::Dialog(QWidget *parent)
 
     connect(&dltMultimeter, SIGNAL(valueMultimeter(QString,QString)), this, SLOT(valueMultimeter(QString,QString)));
 
-    /*  load global settings */
+    //  load global settings from registry
     QSettings settings;
     QString filename = settings.value("autoload/filename").toString();
     bool autoload = settings.value("autoload/checked").toBool();
-    bool autostart = settings.value("autostart/checked").toBool();
+    bool autostartGlobal = settings.value("autostart/checked").toBool();
 
-    /* autoload settings */
+    // autoload settings, when activated in global settings
     if(autoload)
     {
         dltMultimeter.readSettings(filename);
@@ -57,8 +57,16 @@ Dialog::Dialog(QWidget *parent)
         restoreSettings();
     }
 
-    /* autostart */
-    if(autostart)
+    // autoload settings, when provided by command line
+    if(!configuration.isEmpty())
+    {
+        dltMultimeter.readSettings(configuration);
+        dltMiniServer.readSettings(configuration);
+        restoreSettings();
+    }
+
+    // autostart, when activated in global settings or by command line
+    if(autostartGlobal || autostart)
     {
         on_pushButtonStart_clicked();
     }
