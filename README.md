@@ -1,3 +1,7 @@
+!!! No further developement, integrated now in DLTPower !!!
+
+https://github.com/alexmucde/DLTPower
+
 # DLTMultimeter
 
 DLTMultimeter is a Tool to read the measured Voltage or Current from a Multimeter and write the values to connected DLT Data Logger.
